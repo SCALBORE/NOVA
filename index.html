@@ -327,9 +327,7 @@
   // script behind a small API (e.g. Flask/FastAPI) that accepts {history}
   // and returns {reply}, then point CHAT_ENDPOINT at it. Until then, a
   // lightweight local placeholder responds so the interface is fully testable.
-  const CHAT_ENDPOINT = "http://localhost:8000/api/chat";
-  // Set this back to `null` if you want to test the interface with the
-  // built-in placeholder responder instead of a running backend.
+  const CHAT_ENDPOINT = "https://twice11-nova-backend.hf.space/api/chat";
 
   function autoGrow(){
     inputEl.style.height = 'auto';
