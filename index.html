@@ -268,7 +268,7 @@
     font-family:'Inter', sans-serif;
     font-size:14.5px;
     color:var(--shard-white);
-    background:rgba(10,11,13,0.55);
+    background:rgba(54,57,62,0.62);
     border:1px solid var(--glass-border);
     border-radius:14px;
     outline:none;
@@ -387,19 +387,46 @@
   const hintEl = document.querySelector('.hint');
   const appEl = document.querySelector('.app');
 
+  // The background image is a fixed 3344x1881 photo with the shard logo
+  // sitting at its exact center (verified by pixel analysis). Because the
+  // page uses `background-size: cover; background-position: center 38%`,
+  // that point lands at a different screen position depending on viewport
+  // size/aspect ratio. This reproduces the CSS cover-fit math so the
+  // welcome group's center can be locked exactly onto the shard mark.
+  const BG_W = 3344, BG_H = 1881;
+  const BG_POS_Y = 0.38; // matches "center 38%" in the CSS
+  const SHARD_FX = 0.50, SHARD_FY = 0.50;
+
+  function computeShardScreenY(){
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const scale = Math.max(vw / BG_W, vh / BG_H);
+    const dispH = BG_H * scale;
+    const offsetY = (vh - dispH) * BG_POS_Y;
+    let target = offsetY + SHARD_FY * dispH;
+    // keep it on-screen with some breathing room on very tall/narrow viewports
+    const headerH = document.querySelector('.header').offsetHeight;
+    const minY = headerH + 90;
+    const maxY = vh - hintEl.offsetHeight - 90;
+    target = Math.max(minY, Math.min(maxY, target));
+    return target;
+  }
+
+  function positionWelcomeGroup(){
+    const group = document.getElementById('welcomeGroup');
+    if(!group) return;
+    const headerH = document.querySelector('.header').offsetHeight;
+    const hintH = hintEl.offsetHeight;
+    const currentCenterY = (headerH + window.innerHeight - hintH) / 2;
+    const targetY = computeShardScreenY();
+    group.style.transform = `translateY(${targetY - currentCenterY}px)`;
+  }
+
   function showGreeting(){
     messagesEl.classList.add('is-empty');
     const pick = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
     messagesEl.innerHTML = `<div class="welcome-group" id="welcomeGroup"><div class="greeting-text">${pick}</div></div>`;
-    const group = document.getElementById('welcomeGroup');
-    group.appendChild(composerEl); // pulls the input up next to the greeting, centered together
-
-    // .messages is centered within the space below the header (and above the
-    // hint), which isn't the true screen center. Shift the group up/down by
-    // half the difference so it lands exactly at true viewport center.
-    const headerH = document.querySelector('.header').offsetHeight;
-    const hintH = hintEl.offsetHeight;
-    group.style.transform = `translateY(${(hintH - headerH) / 2}px)`;
+    document.getElementById('welcomeGroup').appendChild(composerEl); // pulls the input up next to the greeting
+    positionWelcomeGroup();
   }
 
   function clearGreeting(){
@@ -412,14 +439,7 @@
 
   showGreeting();
 
-  window.addEventListener('resize', () => {
-    const group = document.getElementById('welcomeGroup');
-    if(group){
-      const headerH = document.querySelector('.header').offsetHeight;
-      const hintH = hintEl.offsetHeight;
-      group.style.transform = `translateY(${(hintH - headerH) / 2}px)`;
-    }
-  });
+  window.addEventListener('resize', positionWelcomeGroup);
 
   function autoGrow(){
     inputEl.style.height = 'auto';
