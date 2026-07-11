@@ -152,6 +152,12 @@
   .messages::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.12); border-radius:8px; }
   .messages::-webkit-scrollbar-track{ background:transparent; }
 
+  .welcome-group{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
   .greeting-text{
     font-family:'Space Grotesk', sans-serif;
     font-size:clamp(22px, 4vw, 30px);
@@ -384,8 +390,16 @@
   function showGreeting(){
     messagesEl.classList.add('is-empty');
     const pick = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
-    messagesEl.innerHTML = `<div class="greeting-text">${pick}</div>`;
-    messagesEl.appendChild(composerEl); // pulls the input up next to the greeting, centered together
+    messagesEl.innerHTML = `<div class="welcome-group" id="welcomeGroup"><div class="greeting-text">${pick}</div></div>`;
+    const group = document.getElementById('welcomeGroup');
+    group.appendChild(composerEl); // pulls the input up next to the greeting, centered together
+
+    // .messages is centered within the space below the header (and above the
+    // hint), which isn't the true screen center. Shift the group up/down by
+    // half the difference so it lands exactly at true viewport center.
+    const headerH = document.querySelector('.header').offsetHeight;
+    const hintH = hintEl.offsetHeight;
+    group.style.transform = `translateY(${(hintH - headerH) / 2}px)`;
   }
 
   function clearGreeting(){
@@ -397,6 +411,15 @@
   }
 
   showGreeting();
+
+  window.addEventListener('resize', () => {
+    const group = document.getElementById('welcomeGroup');
+    if(group){
+      const headerH = document.querySelector('.header').offsetHeight;
+      const hintH = hintEl.offsetHeight;
+      group.style.transform = `translateY(${(hintH - headerH) / 2}px)`;
+    }
+  });
 
   function autoGrow(){
     inputEl.style.height = 'auto';
