@@ -144,9 +144,39 @@
     gap:16px;
     scroll-behavior:smooth;
   }
+  .messages.is-empty{
+    justify-content:center;
+    align-items:center;
+  }
   .messages::-webkit-scrollbar{ width:8px; }
   .messages::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.12); border-radius:8px; }
   .messages::-webkit-scrollbar-track{ background:transparent; }
+
+  .greeting-text{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:clamp(22px, 4vw, 30px);
+    font-weight:500;
+    text-align:center;
+    margin-bottom:26px;
+    background:linear-gradient(90deg, var(--shard-silver), var(--shard-white));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation: rise .35s ease;
+  }
+
+  /* while empty, the composer lives inside .messages so it sits directly
+     under the greeting text, centered together mid-screen */
+  .messages.is-empty .composer{
+    background:none;
+    padding:0;
+    margin:0;
+    width:min(640px, 88vw);
+  }
+  .messages.is-empty .composer textarea{
+    border-radius:999px;
+    padding:15px 22px;
+  }
 
   .row{
     display:flex;
@@ -293,14 +323,7 @@
       </div>
     </div>
 
-    <div class="messages" id="messages">
-      <div class="row ai">
-        <div>
-          <span class="sender-label">Nova</span>
-          <div class="bubble">Hi, I'm Nova. Ask me anything — I'll keep it clear and to the point.</div>
-        </div>
-      </div>
-    </div>
+    <div class="messages" id="messages"></div>
 
     <div class="composer">
       <textarea id="input" placeholder="Message Nova..." rows="1"></textarea>
@@ -329,6 +352,51 @@
   // and returns {reply}, then point CHAT_ENDPOINT at it. Until then, a
   // lightweight local placeholder responds so the interface is fully testable.
   const CHAT_ENDPOINT = "https://twice11-nova-backend.hf.space/api/chat";
+
+  // Randomized empty-state greetings, shown centered above the composer
+  // until the first message is sent — same idea as ChatGPT/Gemini/Claude's
+  // blank-session prompt.
+  const GREETINGS = [
+    "How can I help you today?", "What can I help you with?", "Ask me anything.",
+    "I'm here to help.", "Ready when you are.", "Start by asking a question.",
+    "Tell me what you need.", "What are you working on today?", "What's on your mind?",
+    "Need help with something?", "Describe your task.", "Ask a question.",
+    "Type your message.", "Start typing...", "Enter your prompt.",
+    "What would you like to do?", "What would you like to know?", "How can I assist?",
+    "What are we solving today?", "Looking for ideas?", "Need help writing?",
+    "Need help coding?", "Need help brainstorming?", "Explain something to me.",
+    "Summarize some text.", "Rewrite a paragraph.", "Translate some text.",
+    "Generate an idea.", "Draft a message.", "Review some text.",
+    "Answer a question.", "Solve a problem.", "Let's get started.",
+    "Ready to chat.", "Begin whenever you're ready.", "Type anything.",
+    "What's your next task?", "What would you like to create?", "How can I make this easier?",
+    "Share your question.", "Paste your text here.", "Describe your problem.",
+    "What can we work on?", "Need an explanation?", "Want to learn something?",
+    "How may I assist?", "I'm ready.", "Your assistant is ready.",
+    "Start a conversation.", "What would you like to explore?", "Ask, create, or learn.",
+    "Let's work on it."
+  ];
+
+  const composerEl = document.querySelector('.composer');
+  const hintEl = document.querySelector('.hint');
+  const appEl = document.querySelector('.app');
+
+  function showGreeting(){
+    messagesEl.classList.add('is-empty');
+    const pick = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
+    messagesEl.innerHTML = `<div class="greeting-text">${pick}</div>`;
+    messagesEl.appendChild(composerEl); // pulls the input up next to the greeting, centered together
+  }
+
+  function clearGreeting(){
+    if(messagesEl.classList.contains('is-empty')){
+      messagesEl.classList.remove('is-empty');
+      appEl.insertBefore(composerEl, hintEl); // return input to its normal docked-bottom spot
+      messagesEl.innerHTML = '';
+    }
+  }
+
+  showGreeting();
 
   function autoGrow(){
     inputEl.style.height = 'auto';
@@ -399,6 +467,7 @@
   async function send(){
     const text = inputEl.value.trim();
     if(!text) return;
+    clearGreeting();
     addMessage('user', text);
     history.push({ role: 'user', content: text });
     inputEl.value = '';
@@ -426,8 +495,7 @@
 
   clearBtn.addEventListener('click', () => {
     history = [{ role: 'system', content: SYSTEM_PROMPT }];
-    messagesEl.innerHTML = '';
-    addMessage('ai', "Chat history cleared. What would you like to talk about?");
+    showGreeting();
   });
 </script>
 
