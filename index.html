@@ -162,12 +162,11 @@
     font-family:'Space Grotesk', sans-serif;
     font-size:clamp(22px, 4vw, 30px);
     font-weight:500;
+    font-variant:small-caps;
+    letter-spacing:0.02em;
     text-align:center;
     margin-bottom:26px;
-    background:linear-gradient(90deg, var(--shard-silver), var(--shard-white));
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
+    color:#F2F2F2;
     animation: rise .35s ease;
   }
 
@@ -387,15 +386,15 @@
   const hintEl = document.querySelector('.hint');
   const appEl = document.querySelector('.app');
 
-  // The background image is a fixed 3344x1881 photo with the shard logo
-  // sitting at its exact center (verified by pixel analysis). Because the
-  // page uses `background-size: cover; background-position: center 38%`,
-  // that point lands at a different screen position depending on viewport
-  // size/aspect ratio. This reproduces the CSS cover-fit math so the
-  // welcome group's center can be locked exactly onto the shard mark.
+  // The background image is a fixed 3344x1881 photo. Pixel analysis of the
+  // shard mark found the MIDDLE bar's own center sits at x≈0.4985, y≈0.5003
+  // of the image (each bar measured individually, not the cluster average).
+  // Because the page uses `background-size: cover; background-position:
+  // center 38%`, that point lands at a different screen position depending
+  // on viewport size/aspect ratio — this reproduces the CSS cover-fit math.
   const BG_W = 3344, BG_H = 1881;
   const BG_POS_Y = 0.38; // matches "center 38%" in the CSS
-  const SHARD_FX = 0.50, SHARD_FY = 0.50;
+  const SHARD_FY = 0.5003; // middle bar's own vertical center, not the cluster's
 
   function computeShardScreenY(){
     const vw = window.innerWidth, vh = window.innerHeight;
@@ -414,11 +413,11 @@
   function positionWelcomeGroup(){
     const group = document.getElementById('welcomeGroup');
     if(!group) return;
-    const headerH = document.querySelector('.header').offsetHeight;
-    const hintH = hintEl.offsetHeight;
-    const currentCenterY = (headerH + window.innerHeight - hintH) / 2;
+    group.style.transform = 'none'; // reset so we measure true natural position first
+    const composerRect = composerEl.getBoundingClientRect();
+    const composerCenterY = composerRect.top + composerRect.height / 2;
     const targetY = computeShardScreenY();
-    group.style.transform = `translateY(${targetY - currentCenterY}px)`;
+    group.style.transform = `translateY(${targetY - composerCenterY}px)`;
   }
 
   function showGreeting(){
