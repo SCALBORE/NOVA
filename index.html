@@ -22,6 +22,11 @@
     --bubble-user-text:#f2f3f5;
     --muted:#9aa0a8;
     --accent-glow: rgba(199,203,209,0.35);
+    --sidebar-bg:#1b1c1f;
+    --sidebar-text:#f2f2f2;
+    --sidebar-border:rgba(255,255,255,0.08);
+    --sidebar-hover:rgba(255,255,255,0.07);
+    --sidebar-active:rgba(255,255,255,0.13);
   }
 
   *{box-sizing:border-box; margin:0; padding:0;}
@@ -49,14 +54,181 @@
     z-index:0;
   }
 
-  .app{
+  .shell{
     position:fixed;
     inset:0;
     z-index:1;
-    width:100vw;
-    height:100vh;
+    display:flex;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:268px;
+    flex-shrink:0;
+    background:var(--sidebar-bg);
+    color:var(--sidebar-text);
     display:flex;
     flex-direction:column;
+    border-right:1px solid var(--sidebar-border);
+    transition: margin-left .22s ease;
+    z-index:25;
+  }
+  .shell.sidebar-collapsed .sidebar{ margin-left:-268px; }
+
+  .sidebar-top{ padding:14px 14px 8px; }
+  .new-chat-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:10px 13px;
+    font-family:'Inter', sans-serif;
+    font-size:13.5px;
+    color:var(--sidebar-text);
+    background:rgba(255,255,255,0.06);
+    border:1px solid var(--sidebar-border);
+    border-radius:10px;
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .new-chat-btn:hover{ background:var(--sidebar-hover); }
+  .new-chat-btn svg{ width:15px; height:15px; flex-shrink:0; }
+
+  .sidebar-search{ padding:8px 14px 6px; }
+  .sidebar-search input{
+    width:100%;
+    padding:8px 11px;
+    font-family:'Inter', sans-serif;
+    font-size:12.5px;
+    color:var(--sidebar-text);
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--sidebar-border);
+    border-radius:8px;
+    outline:none;
+  }
+  .sidebar-search input::placeholder{ color:var(--muted); }
+  .sidebar-search input:focus{ border-color:rgba(242,243,245,0.3); }
+
+  .chat-list{
+    flex:1;
+    overflow-y:auto;
+    padding:6px 8px 8px;
+  }
+  .chat-list::-webkit-scrollbar{ width:6px; }
+  .chat-list::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.12); border-radius:8px; }
+
+  .chat-group-label{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--muted);
+    padding:12px 8px 6px;
+  }
+  .chat-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:6px;
+    padding:9px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13.3px;
+    color:var(--sidebar-text);
+    margin-bottom:2px;
+  }
+  .chat-item:hover{ background:var(--sidebar-hover); }
+  .chat-item.active{ background:var(--sidebar-active); }
+  .chat-item-title{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    flex:1;
+    min-width:0;
+  }
+  .chat-item-input{
+    flex:1;
+    min-width:0;
+    background:rgba(0,0,0,0.35);
+    border:1px solid var(--sidebar-border);
+    color:#fff;
+    border-radius:6px;
+    padding:3px 7px;
+    font-size:13px;
+    font-family:'Inter', sans-serif;
+    outline:none;
+  }
+  .chat-item-actions{
+    display:flex;
+    gap:2px;
+    flex-shrink:0;
+    opacity:0;
+    transition:opacity .12s ease;
+  }
+  .chat-item:hover .chat-item-actions{ opacity:1; }
+  .chat-item-actions button{
+    width:22px; height:22px;
+    display:flex; align-items:center; justify-content:center;
+    background:none;
+    border:none;
+    color:var(--muted);
+    cursor:pointer;
+    border-radius:5px;
+    font-size:12px;
+  }
+  .chat-item-actions button:hover{ color:#fff; background:rgba(255,255,255,0.12); }
+  .chat-empty-note{
+    padding:16px 10px;
+    color:var(--muted);
+    font-size:12.5px;
+    text-align:center;
+  }
+
+  .sidebar-footer{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px;
+    border-top:1px solid var(--sidebar-border);
+    color:var(--muted);
+    font-size:10.5px;
+    letter-spacing:0.03em;
+  }
+  .sidebar-footer .shard-mark{ width:18px; height:18px; }
+  .sidebar-footer .shard-mark span{ width:3px; }
+  .sidebar-footer .shard-mark span:nth-child(1){ height:18px; }
+  .sidebar-footer .shard-mark span:nth-child(2){ height:14px; }
+  .sidebar-footer .shard-mark span:nth-child(3){ height:11px; }
+
+  .sidebar-backdrop{
+    position:fixed; inset:0;
+    background:rgba(0,0,0,0.5);
+    z-index:20;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+  }
+
+  .sidebar-toggle-btn{
+    width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center;
+    background:none;
+    border:none;
+    color:var(--shard-white);
+    cursor:pointer;
+    border-radius:8px;
+    flex-shrink:0;
+  }
+  .sidebar-toggle-btn:hover{ background:rgba(255,255,255,0.08); }
+  .sidebar-toggle-btn svg{ width:19px; height:19px; }
+
+  .app{
+    flex:1;
+    min-width:0;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    position:relative;
   }
 
   /* ---------- Header ---------- */
@@ -114,8 +286,14 @@
 
   .header-actions{
     margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
   }
-  .clear-btn{
+  .header-icon-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
     font-family:'Inter', sans-serif;
     font-size:12px;
     letter-spacing:0.03em;
@@ -129,16 +307,18 @@
     -webkit-backdrop-filter: blur(8px);
     transition:all .15s ease;
   }
-  .clear-btn:hover{
+  .header-icon-btn:hover{
     color:var(--shard-white);
     background:rgba(10,11,13,0.55);
   }
+  .header-icon-btn svg{ width:13px; height:13px; }
+  .clear-btn{ }
 
   /* ---------- Messages ---------- */
   .messages{
     flex:1;
     overflow-y:auto;
-    padding:26px max(22px, calc(50vw - 380px));
+    padding:26px max(22px, calc(50% - 380px));
     display:flex;
     flex-direction:column;
     gap:16px;
@@ -177,7 +357,7 @@
     background:none;
     padding:0;
     margin:0;
-    width:min(640px, 88vw);
+    width:min(640px, 90%);
   }
   .messages.is-empty .composer textarea{
     border-radius:999px;
@@ -229,26 +409,25 @@
   }
   .row.user .sender-label{ text-align:right; }
 
-  /* typing indicator styled after the shard mark */
+  /* typing indicator: classic 3-dot bounce, dark dots inside the light AI bubble */
   .typing-row .bubble{
     display:flex;
     align-items:center;
-    gap:5px;
-    padding:14px 18px;
+    gap:6px;
+    padding:15px 18px;
   }
-  .typing-row .bar{
-    width:4px;
+  .typing-row .dot{
+    width:7px; height:7px;
+    border-radius:50%;
     background:var(--bubble-ai-text);
-    opacity:0.55;
-    border-radius:2px;
-    animation: bar-pulse 1.1s ease-in-out infinite;
+    opacity:0.3;
+    animation: dot-bounce 1.2s ease-in-out infinite;
   }
-  .typing-row .bar:nth-child(1){ height:10px; animation-delay:0s; }
-  .typing-row .bar:nth-child(2){ height:16px; animation-delay:0.15s; }
-  .typing-row .bar:nth-child(3){ height:8px;  animation-delay:0.3s; }
-  @keyframes bar-pulse{
-    0%,100%{ transform:scaleY(0.5); opacity:0.35; }
-    50%{ transform:scaleY(1); opacity:0.9; }
+  .typing-row .dot:nth-child(2){ animation-delay:0.2s; }
+  .typing-row .dot:nth-child(3){ animation-delay:0.4s; }
+  @keyframes dot-bounce{
+    0%, 60%, 100%{ transform:translateY(0); opacity:0.3; }
+    30%{ transform:translateY(-4px); opacity:1; }
   }
 
   /* ---------- Composer ---------- */
@@ -256,7 +435,7 @@
     display:flex;
     align-items:flex-end;
     gap:10px;
-    padding:14px max(22px, calc(50vw - 380px)) 8px;
+    padding:14px max(22px, calc(50% - 380px)) 8px;
     background:linear-gradient(0deg, rgba(6,7,9,0.55) 40%, rgba(6,7,9,0));
   }
   .composer textarea{
@@ -313,33 +492,72 @@
     .messages{ padding:20px 14px; }
     .composer{ padding:12px 14px 6px; }
   }
+
+  @media (max-width:760px){
+    .sidebar{
+      position:fixed;
+      top:0; left:0; bottom:0;
+      margin-left:0 !important;
+      transform:translateX(-100%);
+      transition:transform .22s ease;
+    }
+    .shell:not(.sidebar-collapsed) .sidebar{ transform:translateX(0); }
+    .shell:not(.sidebar-collapsed) .sidebar-backdrop{ opacity:1; pointer-events:auto; }
+  }
 </style>
 </head>
 <body>
 
-  <div class="app">
-    <div class="header">
-      <div class="shard-mark"><span></span><span></span><span></span></div>
-      <div class="brand">
-        <span class="name">NOVA</span>
-        <span class="status"><span class="dot"></span>online</span>
+  <div class="shell" id="shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <button class="new-chat-btn" id="newChatBtn">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          New chat
+        </button>
       </div>
-      <div class="header-actions">
-        <button class="clear-btn" id="clearBtn">Clear chat</button>
+      <div class="sidebar-search">
+        <input type="text" id="chatSearch" placeholder="Search chats">
       </div>
-    </div>
+      <div class="chat-list" id="chatList"></div>
+      <div class="sidebar-footer">
+        <div class="shard-mark"><span></span><span></span><span></span></div>
+        <span>NOVA · Qwen2.5-1.5B-Instruct</span>
+      </div>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-    <div class="messages" id="messages"></div>
+    <div class="app">
+      <div class="header">
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle sidebar">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <div class="shard-mark"><span></span><span></span><span></span></div>
+        <div class="brand">
+          <span class="name">NOVA</span>
+          <span class="status"><span class="dot"></span>online</span>
+        </div>
+        <div class="header-actions">
+          <button class="header-icon-btn" id="newChatHeaderBtn">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            New chat
+          </button>
+          <button class="header-icon-btn clear-btn" id="clearBtn">Clear chat</button>
+        </div>
+      </div>
 
-    <div class="composer">
-      <textarea id="input" placeholder="Message Nova..." rows="1"></textarea>
-      <button class="send-btn" id="sendBtn" aria-label="Send">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 12L20 4L13 20L11 13L4 12Z" fill="#17181a"/>
-        </svg>
-      </button>
+      <div class="messages" id="messages"></div>
+
+      <div class="composer">
+        <textarea id="input" placeholder="Message Nova..." rows="1"></textarea>
+        <button class="send-btn" id="sendBtn" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 12L20 4L13 20L11 13L4 12Z" fill="#17181a"/>
+          </svg>
+        </button>
+      </div>
+      <div class="hint">Nova can make mistakes. Powered by Qwen2.5-1.5B-Instruct — run app.py locally to bring Nova online.</div>
     </div>
-    <div class="hint">Nova can make mistakes. Powered by Qwen2.5-1.5B-Instruct — run app.py locally to bring Nova online.</div>
   </div>
 
 <script>
@@ -347,21 +565,199 @@
   const inputEl = document.getElementById('input');
   const sendBtn = document.getElementById('sendBtn');
   const clearBtn = document.getElementById('clearBtn');
+  const shellEl = document.getElementById('shell');
+  const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  const newChatBtn = document.getElementById('newChatBtn');
+  const newChatHeaderBtn = document.getElementById('newChatHeaderBtn');
+  const chatListEl = document.getElementById('chatList');
+  const chatSearchEl = document.getElementById('chatSearch');
 
-  // Conversation state mirrors the `messages` list in the Python script
   const SYSTEM_PROMPT = "You are Nova, a helpful, clear, friendly AI assistant. Give accurate answers when possible. If you are unsure, say so instead of inventing facts. Keep answers concise unless the user asks for detail.";
-  let history = [{ role: "system", content: SYSTEM_PROMPT }];
-
-  // ---- Wire this up to your real model ----
-  // This frontend is backend-agnostic. Run the provided Qwen2.5-1.5B-Instruct
-  // script behind a small API (e.g. Flask/FastAPI) that accepts {history}
-  // and returns {reply}, then point CHAT_ENDPOINT at it. Until then, a
-  // lightweight local placeholder responds so the interface is fully testable.
   const CHAT_ENDPOINT = "https://twice11-nova-backend.hf.space/api/chat";
+  const STORAGE_KEY = "novaChatsV1";
 
-  // Randomized empty-state greetings, shown centered above the composer
-  // until the first message is sent — same idea as ChatGPT/Gemini/Claude's
-  // blank-session prompt.
+  // ---------------- Multi-chat state (persisted to localStorage; no accounts) ----------------
+  let chats = {};
+  let activeChatId = null;
+  let history = []; // always points at chats[activeChatId].history
+
+  function uid(){
+    return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function deriveTitle(text){
+    let t = text.trim().replace(/\s+/g, ' ');
+    if(t.length > 42) t = t.slice(0, 42).trim() + '…';
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function saveState(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ chats, activeChatId }));
+    }catch(e){ /* storage full or unavailable — conversation still works this session */ }
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(parsed && parsed.chats && Object.keys(parsed.chats).length){
+          chats = parsed.chats;
+          activeChatId = parsed.activeChatId && chats[parsed.activeChatId] ? parsed.activeChatId : Object.keys(chats)[0];
+          return;
+        }
+      }
+    }catch(e){ /* corrupted storage — fall through to a fresh chat */ }
+    createChat();
+  }
+
+  function createChat(){
+    const id = uid();
+    chats[id] = {
+      id,
+      title: null,
+      customTitle: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      history: [{ role: "system", content: SYSTEM_PROMPT }]
+    };
+    activeChatId = id;
+    saveState();
+    return id;
+  }
+
+  function groupLabel(ts){
+    const now = new Date();
+    const d = new Date(ts);
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfThat = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const diffDays = Math.floor((startOfToday - startOfThat) / 86400000);
+    if(diffDays <= 0) return 'Today';
+    if(diffDays <= 7) return 'Previous 7 Days';
+    return 'Older';
+  }
+
+  function renderSidebar(){
+    const query = chatSearchEl.value.trim().toLowerCase();
+    const ids = Object.keys(chats).sort((a, b) => chats[b].updatedAt - chats[a].updatedAt);
+    const groups = { 'Today': [], 'Previous 7 Days': [], 'Older': [] };
+
+    ids.forEach(id => {
+      const c = chats[id];
+      const title = c.title || 'New chat';
+      if(query && !title.toLowerCase().includes(query)) return;
+      groups[groupLabel(c.updatedAt)].push(c);
+    });
+
+    let html = '';
+    ['Today', 'Previous 7 Days', 'Older'].forEach(label => {
+      if(groups[label].length === 0) return;
+      html += `<div class="chat-group-label">${label}</div>`;
+      groups[label].forEach(c => {
+        const title = escapeHtml(c.title || 'New chat');
+        const activeCls = c.id === activeChatId ? ' active' : '';
+        html += `<div class="chat-item${activeCls}" data-id="${c.id}">
+          <span class="chat-item-title">${title}</span>
+          <span class="chat-item-actions">
+            <button class="rename-btn" data-id="${c.id}" title="Rename">✎</button>
+            <button class="delete-btn" data-id="${c.id}" title="Delete">🗑</button>
+          </span>
+        </div>`;
+      });
+    });
+
+    chatListEl.innerHTML = html || `<div class="chat-empty-note">No chats yet</div>`;
+  }
+
+  function startRename(id){
+    const item = chatListEl.querySelector(`.chat-item[data-id="${id}"]`);
+    if(!item) return;
+    const titleSpan = item.querySelector('.chat-item-title');
+    const input = document.createElement('input');
+    input.className = 'chat-item-input';
+    input.value = chats[id].title || '';
+    titleSpan.replaceWith(input);
+    input.focus();
+    input.select();
+
+    const commit = () => {
+      const val = input.value.trim();
+      chats[id].title = val || 'New chat';
+      chats[id].customTitle = true;
+      saveState();
+      renderSidebar();
+    };
+    input.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); commit(); }
+      else if(e.key === 'Escape'){ renderSidebar(); }
+    });
+    input.addEventListener('blur', commit);
+  }
+
+  function deleteChat(id){
+    if(!confirm('Delete this chat?')) return;
+    delete chats[id];
+    if(activeChatId === id){
+      const remaining = Object.keys(chats).sort((a, b) => chats[b].updatedAt - chats[a].updatedAt);
+      activeChatId = remaining.length ? remaining[0] : createChat();
+      history = chats[activeChatId].history;
+      renderActiveChat();
+    }
+    saveState();
+    renderSidebar();
+  }
+
+  function isMobile(){ return window.innerWidth <= 760; }
+
+  function closeSidebarOnMobile(){
+    if(isMobile()) shellEl.classList.add('sidebar-collapsed');
+  }
+
+  function selectChat(id){
+    if(id === activeChatId) { closeSidebarOnMobile(); return; }
+    activeChatId = id;
+    history = chats[id].history;
+    renderActiveChat();
+    saveState();
+    renderSidebar();
+    closeSidebarOnMobile();
+  }
+
+  chatListEl.addEventListener('click', (e) => {
+    const renameBtn = e.target.closest('.rename-btn');
+    const deleteBtn = e.target.closest('.delete-btn');
+    const item = e.target.closest('.chat-item');
+    if(renameBtn){ e.stopPropagation(); startRename(renameBtn.dataset.id); return; }
+    if(deleteBtn){ e.stopPropagation(); deleteChat(deleteBtn.dataset.id); return; }
+    if(item){ selectChat(item.dataset.id); }
+  });
+
+  chatSearchEl.addEventListener('input', renderSidebar);
+
+  function startNewChat(){
+    createChat();
+    history = chats[activeChatId].history;
+    renderActiveChat();
+    renderSidebar();
+    closeSidebarOnMobile();
+    inputEl.focus();
+  }
+  newChatBtn.addEventListener('click', startNewChat);
+  newChatHeaderBtn.addEventListener('click', startNewChat);
+
+  sidebarToggleBtn.addEventListener('click', () => {
+    shellEl.classList.toggle('sidebar-collapsed');
+    setTimeout(positionWelcomeGroup, 260); // recompute after the slide transition finishes
+  });
+  sidebarBackdrop.addEventListener('click', () => shellEl.classList.add('sidebar-collapsed'));
+
+  // ---------------- Randomized empty-state greetings ----------------
   const GREETINGS = [
     "How can I help you today?", "What can I help you with?", "Ask me anything.",
     "I'm here to help.", "Ready when you are.", "Start by asking a question.",
@@ -393,9 +789,20 @@
   // Because the page uses `background-size: cover; background-position:
   // center 38%`, that point lands at a different screen position depending
   // on viewport size/aspect ratio — this reproduces the CSS cover-fit math.
+  // It's computed against the full window (the background covers the whole
+  // page, sidebar included) then translated into the composer's own local
+  // position, so alignment holds whether the sidebar is open or collapsed.
   const BG_W = 3344, BG_H = 1881;
-  const BG_POS_Y = 0.38; // matches "center 38%" in the CSS
-  const SHARD_FY = 0.5003; // middle bar's own vertical center, not the cluster's
+  const BG_POS_Y = 0.38;
+  const SHARD_FX = 0.4985, SHARD_FY = 0.5003;
+
+  function computeShardScreenX(){
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const scale = Math.max(vw / BG_W, vh / BG_H);
+    const dispW = BG_W * scale;
+    const offsetX = (vw - dispW) * 0.5;
+    return offsetX + SHARD_FX * dispW;
+  }
 
   function computeShardScreenY(){
     const vw = window.innerWidth, vh = window.innerHeight;
@@ -403,7 +810,6 @@
     const dispH = BG_H * scale;
     const offsetY = (vh - dispH) * BG_POS_Y;
     let target = offsetY + SHARD_FY * dispH;
-    // keep it on-screen with some breathing room on very tall/narrow viewports
     const headerH = document.querySelector('.header').offsetHeight;
     const minY = headerH + 90;
     const maxY = vh - hintEl.offsetHeight - 90;
@@ -415,31 +821,30 @@
     const group = document.getElementById('welcomeGroup');
     if(!group) return;
     group.style.transform = 'none'; // reset so we measure true natural position first
-    const composerRect = composerEl.getBoundingClientRect();
-    const composerCenterY = composerRect.top + composerRect.height / 2;
+    const rect = composerEl.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const targetX = computeShardScreenX();
     const targetY = computeShardScreenY();
-    group.style.transform = `translateY(${targetY - composerCenterY}px)`;
+    group.style.transform = `translate(${targetX - centerX}px, ${targetY - centerY}px)`;
   }
 
   function showGreeting(){
     messagesEl.classList.add('is-empty');
     const pick = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
     messagesEl.innerHTML = `<div class="welcome-group" id="welcomeGroup"><div class="greeting-text">${pick}</div></div>`;
-    document.getElementById('welcomeGroup').appendChild(composerEl); // pulls the input up next to the greeting
+    document.getElementById('welcomeGroup').appendChild(composerEl);
     positionWelcomeGroup();
   }
 
-  function clearGreeting(){
+  function resetComposerToBottom(){
     if(messagesEl.classList.contains('is-empty')){
       messagesEl.classList.remove('is-empty');
-      appEl.insertBefore(composerEl, hintEl); // return input to its normal docked-bottom spot
-      messagesEl.innerHTML = '';
+      appEl.insertBefore(composerEl, hintEl);
     }
   }
 
-  showGreeting();
-
-  window.addEventListener('resize', positionWelcomeGroup);
+  window.addEventListener('resize', () => { positionWelcomeGroup(); });
 
   function autoGrow(){
     inputEl.style.height = 'auto';
@@ -464,6 +869,23 @@
     scrollToBottom();
   }
 
+  // Renders whichever chat is currently active: either the blank greeting
+  // state (brand-new chat) or a full replay of its saved messages.
+  function renderActiveChat(){
+    resetComposerToBottom();
+    messagesEl.innerHTML = '';
+    const chat = chats[activeChatId];
+    const hasConversation = chat.history.some(m => m.role !== 'system');
+    if(hasConversation){
+      chat.history.filter(m => m.role !== 'system').forEach(m => {
+        addMessage(m.role === 'user' ? 'user' : 'ai', m.content);
+      });
+      scrollToBottom();
+    }else{
+      showGreeting();
+    }
+  }
+
   function showTyping(){
     const row = document.createElement('div');
     row.className = 'row ai typing-row';
@@ -472,7 +894,7 @@
       <div>
         <span class="sender-label">Nova</span>
         <div class="bubble">
-          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
         </div>
       </div>`;
     messagesEl.appendChild(row);
@@ -502,7 +924,6 @@
       const data = await res.json();
       return data.reply;
     }
-    // simulated latency so the typing indicator reads naturally
     await new Promise(r => setTimeout(r, 700 + Math.random()*500));
     return placeholderReply(userText);
   }
@@ -510,9 +931,21 @@
   async function send(){
     const text = inputEl.value.trim();
     if(!text) return;
-    clearGreeting();
+    resetComposerToBottom();
+    if(messagesEl.querySelector('.welcome-group')) messagesEl.innerHTML = '';
+
+    const chat = chats[activeChatId];
+    const isFirstUserMessage = !chat.history.some(m => m.role === 'user');
+
     addMessage('user', text);
     history.push({ role: 'user', content: text });
+    if(isFirstUserMessage && !chat.customTitle){
+      chat.title = deriveTitle(text);
+    }
+    chat.updatedAt = Date.now();
+    saveState();
+    renderSidebar();
+
     inputEl.value = '';
     autoGrow();
 
@@ -522,9 +955,13 @@
       hideTyping();
       addMessage('ai', reply);
       history.push({ role: 'assistant', content: reply });
+      chat.updatedAt = Date.now();
+      saveState();
+      renderSidebar();
     }catch(err){
       hideTyping();
       addMessage('ai', "Something went wrong reaching the backend. Please try again.");
+      saveState();
     }
   }
 
@@ -537,9 +974,23 @@
   });
 
   clearBtn.addEventListener('click', () => {
-    history = [{ role: 'system', content: SYSTEM_PROMPT }];
-    showGreeting();
+    const chat = chats[activeChatId];
+    chat.history = [{ role: 'system', content: SYSTEM_PROMPT }];
+    chat.title = null;
+    chat.customTitle = false;
+    chat.updatedAt = Date.now();
+    history = chat.history;
+    saveState();
+    renderActiveChat();
+    renderSidebar();
   });
+
+  // ---------------- Boot ----------------
+  loadState();
+  history = chats[activeChatId].history;
+  if(isMobile()) shellEl.classList.add('sidebar-collapsed');
+  renderActiveChat();
+  renderSidebar();
 </script>
 
 </body>
