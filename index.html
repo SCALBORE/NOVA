@@ -357,7 +357,7 @@
     background:none;
     padding:0;
     margin:0;
-    width:min(640px, 90%);
+    width:100%;
   }
   .messages.is-empty .composer textarea{
     border-radius:999px;
@@ -988,7 +988,7 @@
   // ---------------- Boot ----------------
   loadState();
   history = chats[activeChatId].history;
-  if(isMobile()) shellEl.classList.add('sidebar-collapsed');
+  shellEl.classList.add('sidebar-collapsed'); // sidebar starts closed; opens only when the user taps the toggle
   renderActiveChat();
   renderSidebar();
 </script>
