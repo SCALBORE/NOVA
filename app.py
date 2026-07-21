@@ -124,6 +124,15 @@ def generate_reply(messages):
     return reply if reply else "I don't have a reply for that — could you rephrase?"
 
 
+@app.route("/", methods=["GET"])
+def root():
+    return jsonify({
+        "service": "Nova backend",
+        "status": "running",
+        "endpoints": ["/api/chat (POST)", "/api/health (GET)"],
+    })
+
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.get_json(silent=True) or {}

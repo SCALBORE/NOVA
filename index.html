@@ -376,14 +376,27 @@
   .row.ai{ justify-content:flex-start; }
   .row.user{ justify-content:flex-end; }
 
-  .bubble{
+  /* wraps sender-label + bubble; carries the max-width so it resolves
+     against .row's definite width instead of an indeterminate ancestor —
+     that indeterminate percentage was the cause of short messages
+     wrapping unpredictably */
+  .msg-col{
+    display:flex;
+    flex-direction:column;
     max-width:74%;
+    min-width:0;
+  }
+  .row.ai .msg-col{ align-items:flex-start; }
+  .row.user .msg-col{ align-items:flex-end; }
+
+  .bubble{
     padding:12px 16px;
     font-size:14.5px;
     line-height:1.5;
     border-radius:16px;
     word-wrap:break-word;
     white-space:pre-wrap;
+    min-width:0;
   }
   .row.ai .bubble{
     background:var(--bubble-ai);
@@ -488,7 +501,7 @@
   }
 
   @media (max-width:520px){
-    .bubble{ max-width:86%; }
+    .msg-col{ max-width:86%; }
     .messages{ padding:20px 14px; }
     .composer{ padding:12px 14px 6px; }
   }
@@ -860,7 +873,7 @@
     const row = document.createElement('div');
     row.className = `row ${role === 'user' ? 'user' : 'ai'}`;
     row.innerHTML = `
-      <div>
+      <div class="msg-col">
         <span class="sender-label">${role === 'user' ? 'You' : 'Nova'}</span>
         <div class="bubble"></div>
       </div>`;
@@ -891,7 +904,7 @@
     row.className = 'row ai typing-row';
     row.id = 'typingRow';
     row.innerHTML = `
-      <div>
+      <div class="msg-col">
         <span class="sender-label">Nova</span>
         <div class="bubble">
           <span class="dot"></span><span class="dot"></span><span class="dot"></span>
